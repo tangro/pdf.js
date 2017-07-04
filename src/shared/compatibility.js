@@ -926,7 +926,7 @@ PDFJS.compatibilityChecked = true;
     },
 
     runHandlers: function runHandlers() {
-      var RUN_TIMEOUT = 1; // ms
+      var RUN_TIMEOUT = 5; // ms // NOTE: https://github.com/mozilla/pdf.js/issues/8427
       var timeoutAt = Date.now() + RUN_TIMEOUT;
       while (this.handlers.length > 0) {
         var handler = this.handlers.shift();
