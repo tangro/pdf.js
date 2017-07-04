@@ -928,6 +928,14 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
             break;
           case 'BM':
             this.ctx.globalCompositeOperation = value;
+            if (this.ctx.globalCompositeOperation !== value) {
+              warn('globalCompositeOperation "' + value + '" is not supported, falling back to globalAlpha hack');
+              // IE11 does not support globalCompositeOperations like 'multiply',
+              // which can lead to documents not being displayed properly
+              // https://github.com/mozilla/pdf.js/issues/3900 suggests the following
+              // workaround,
+              this.ctx.globalAlpha = 0;
+            }
             break;
           case 'SMask':
             if (this.current.activeSMask) {
