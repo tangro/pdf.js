@@ -64,6 +64,18 @@ class DOMCMapReaderFactory {
     return new Promise((resolve, reject) => {
       let url = this.baseUrl + name + (this.isCompressed ? '.bcmap' : '');
 
+      if ((typeof PDFJS_BCMAPS !== "undefined") && (name in PDFJS_BCMAPS)) {
+        console.log('PDFJS_BCMAPS["' + name + '"] found (' + (this.isCompressed ? 'compressed' : 'uncompressed') + ')');
+
+        let data = stringToBytes(atob(PDFJS_BCMAPS[name]));
+        resolve({
+                  cMapData: data,
+                  compressionType: this.isCompressed ? CMapCompressionType.BINARY : CMapCompressionType.NONE,
+                });
+        return;
+      }
+      console.warn('PDFJS_BCMAPS["' + name + '"] not found');
+
       let request = new XMLHttpRequest();
       request.open('GET', url, true);
 
