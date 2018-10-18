@@ -1588,7 +1588,7 @@ function loadJpegStream(id, imageUrl, objs) {
   });
   img.onerror = (function loadJpegStream_onerrorClosure() {
     objs.resolve(id, null);
-    warn('Error during JPEG image loading');
+    warn('Error during JPEG image loading',arguments);
   });
   img.src = imageUrl;
 }

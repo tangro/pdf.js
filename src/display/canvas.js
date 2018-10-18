@@ -1931,8 +1931,34 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       // scale the image to the unit square
       ctx.scale(1 / w, -1 / h);
 
-      ctx.drawImage(domImage, 0, 0, domImage.width, domImage.height,
-                    0, -h, w, h);
+      // ctx.drawImage(domImage, 0, 0, domImage.width, domImage.height,
+      //               0, -h, w, h);
+      // NOTE: taken from https://github.com/mozilla/pdf.js/issues/7041#issuecomment-192496865
+      var targetW = ctx.canvas.width;
+      var targetH = ctx.canvas.height;
+      var tmpCanvasId = 'prescale1';
+      var imgToPaint = domImage;
+      var imgW = domImage.width;
+      var imgH = domImage.height;
+
+      // Vertical or horizontal scaling shall not be more than 2 to not loose
+      // the pixels during drawImage operation, painting on the temporary
+      // canvas(es) that are twice smaller in size
+      while ((imgW > 2 * targetW) || (imgH > 2 * targetH)) {
+        var newW = Math.ceil(imgW / 2);
+        var newH = Math.ceil(imgH / 2);
+
+        var tmpCanvas = this.cachedCanvases.getCanvas(tmpCanvasId, newW, newH);
+        tmpCanvas.context.clearRect(0, 0, newW, newH);
+        tmpCanvas.context.drawImage(imgToPaint, 0, 0, imgW, imgH,
+                                    0, 0, newW, newH);
+        imgW = newW;
+        imgH = newH;
+        imgToPaint = tmpCanvas.canvas;
+        tmpCanvasId = tmpCanvasId === 'prescale1' ? 'prescale2' : 'prescale1';
+      }
+      ctx.drawImage(imgToPaint, 0, 0, imgW, imgH, 0, -h, w, h);
+
       if (this.imageLayer) {
         var currentTransform = ctx.mozCurrentTransformInverse;
         var position = this.getCanvasPosition(0, 0);
